@@ -1,6 +1,6 @@
-# Project sampleapp
+# GenAI Testing in Go
 
-One Paragraph of project description goes here
+A sample project for demonstrating how to test a Go application using GenAI.
 
 ## Getting Started
 
