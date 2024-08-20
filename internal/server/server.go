@@ -8,6 +8,7 @@ import (
 	"github.com/tmc/langchaingo/chains"
 	"github.com/tmc/langchaingo/embeddings"
 	"github.com/tmc/langchaingo/llms/openai"
+	"github.com/tmc/langchaingo/memory"
 	"github.com/tmc/langchaingo/schema"
 	"github.com/tmc/langchaingo/vectorstores"
 	"github.com/tmc/langchaingo/vectorstores/pgvector"
@@ -89,7 +90,7 @@ func New() *FiberServer {
 		}
 
 		server.conversationalRetrieval = chains.NewConversationalRetrievalQAFromLLM(
-			llm, vectorstores.ToRetriever(store, 10, optionsVector...), nil)
+			llm, vectorstores.ToRetriever(store, 10, optionsVector...), memory.NewConversationBuffer())
 
 		return nil
 	})
