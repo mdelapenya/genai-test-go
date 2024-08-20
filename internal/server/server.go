@@ -19,8 +19,6 @@ import (
 type FiberServer struct {
 	*fiber.App
 
-	db database.Service
-
 	// using RAG for conversational retrieval
 	conversationalRetrieval chains.ConversationalRetrievalQA
 
@@ -34,8 +32,6 @@ func New() *FiberServer {
 			ServerHeader: "genai-test-go",
 			AppName:      "genai-test-go",
 		}),
-
-		db: database.New(),
 	}
 
 	// Create an embeddings client using the OpenAI API. Requires environment variable OPENAI_API_KEY to be set.
