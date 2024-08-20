@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+	"genai-test-go/internal/server"
 	"os"
-	"sampleapp/internal/server"
 	"strconv"
 
 	_ "github.com/joho/godotenv/autoload"
