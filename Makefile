@@ -9,6 +9,12 @@ build:
 	
 	@go build -o main cmd/api/main.go
 
+build-dev:
+	@echo "Building for Local Development..."
+	@echo "See https://www.docker.com/blog/local-development-of-go-applications-with-testcontainers/"
+	
+	@go build -tags=local_dev -o main cmd/api/main.go
+
 # Run the application
 run:
 	@go run cmd/api/main.go

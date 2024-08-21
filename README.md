@@ -18,6 +18,11 @@ build the application
 make build
 ```
 
+build the application for local development mode
+```bash
+make build-dev
+```
+
 run the application
 ```bash
 make run
