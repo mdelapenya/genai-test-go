@@ -15,7 +15,6 @@ func (s *FiberServer) RegisterFiberRoutes() {
 
 	chatApis.Add(http.MethodGet, "/rag", s.RagHandler)
 	chatApis.Add(http.MethodGet, "/llm", s.LLHandler)
-
 }
 
 func (s *FiberServer) HelloWorldHandler(c *fiber.Ctx) error {
