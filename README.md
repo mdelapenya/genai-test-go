@@ -45,3 +45,11 @@ The project uses [Testcontainers for Go](https://github.com/testcontainers/testc
 Please check the [`server/local_development.go`](./internal/server/local_development.go) file. This file leverages Go build tags and a Go's init function to conditionally start the Postgres container only during local development. The `make build-dev` command adds the proper build tags to the execution of the Go toolchain in order to make it possible. To understand how this works, check [the following blog post](https://www.docker.com/blog/local-development-of-go-applications-with-testcontainers/).
 
 In a nutshell, you start the application using `air`, that watches for changes; and when a change is detected, the application is recompiled with the `make build-dev` command, so the local development environment is included in the build process. The database container will be started only once, and it will be reused across multiple builds.
+
+## Running the tests
+
+To run the integrations tests, which automatically starts the local development environment, execute the following command:
+
+```bash
+make itest
+```

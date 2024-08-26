@@ -28,7 +28,7 @@ test:
 # Integrations Tests for the application
 itest:
 	@echo "Running integration tests..."
-	@go test ./internal/database -v
+	@go test ./... -tags=local_dev -v
 
 
 # Clean the binary
