@@ -26,6 +26,8 @@ This proposal involves defining detailed validation criteria and using an LLM as
 
 By incorporating detailed instructions and examples, the Evaluator can provide accurate and justified evaluations, offering clarity on why a response is considered correct or incorrect.
 
+An example of using an LLM model as an Evaluator is shown in the following [test file](./internal/server/routes_local_dev_test.go).
+
 ## Local Development
 
 First, create a `.env` file in the root of the project with the contents of the [`.env.example`](.env.example) file. This file contains the environment variables required by the application.
