@@ -26,53 +26,18 @@ This proposal involves defining detailed validation criteria and using an LLM as
 
 By incorporating detailed instructions and examples, the Evaluator can provide accurate and justified evaluations, offering clarity on why a response is considered correct or incorrect.
 
-## Getting Started
+## Local Development
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+The project uses [air](https://github.com/air-verse/air) for live reloading the application. To start the application with live reload, run the following command:
 
-## MakeFile
-
-run all make commands with clean tests
-```bash
-make all build
-```
-
-build the application
-```bash
-make build
-```
-
-build the application for local development mode
-```bash
-make build-dev
-```
-
-run the application
-```bash
-make run
-```
-
-Create DB container
-```bash
-make docker-run
-```
-
-Shutdown DB container
-```bash
-make docker-down
-```
-
-live reload the application
 ```bash
 make watch
 ```
 
-run the test suite
-```bash
-make test
-```
+This will start the application and watch for changes in the source code. When a change is detected, the application will be recompiled and restarted.
 
-clean up binary from the last build
-```bash
-make clean
-```
+The project uses [Testcontainers for Go](https://github.com/testcontainers/testcontainers-go) for running the local development environment for the application. It is formed by a local Postgres database, with the `pgVector` module enabled, as a Docker container. This container is reused across multiple builds, so you don't end up with multiple containers running at the same time.
+
+Please check the [server/local_development.go](./server/local_development.go) file. This file leverages Go build tags and a Go's init function to conditionally start the Postgres container only during local development. The `make build-dev` command adds the proper build tags to the execution of the Go toolchain in order to make it possible. To understand how this works, check [the following blog post](https://www.docker.com/blog/local-development-of-go-applications-with-testcontainers/).
+
+In a nutshell, you start the application using `air`, that watches for changes; and when a change is detected, the application is recompiled with the `make build-dev` command, so the local development environment is included in the build process. The database container will be started only once, and it will be reused across multiple builds.
