@@ -3,6 +3,7 @@ package server
 import (
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/tmc/langchaingo/chains"
@@ -34,8 +35,10 @@ func (s *FiberServer) RagHandler(c *fiber.Ctx) error {
 		})
 	}
 
+	response = strings.ReplaceAll(response, "\"", "'")
+
 	resp := fiber.Map{
-		"message-from-rag": response,
+		"message": response,
 	}
 
 	return c.JSON(resp)
@@ -47,8 +50,10 @@ func (s *FiberServer) LLHandler(c *fiber.Ctx) error {
 		log.Fatal(err)
 	}
 
+	completion = strings.ReplaceAll(completion, "\"", "'")
+
 	resp := fiber.Map{
-		"message-from-llm": completion,
+		"message": completion,
 	}
 
 	return c.JSON(resp)
