@@ -8,7 +8,7 @@ import (
 	"genai-test-go/internal/database"
 	"log"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/joho/godotenv"
 	"github.com/tmc/langchaingo/chains"
 	"github.com/tmc/langchaingo/embeddings"
 	"github.com/tmc/langchaingo/llms/openai"
@@ -19,6 +19,8 @@ import (
 )
 
 func init() {
+	godotenv.Load("../../.env")
+
 	log.Println("Initializing Local Development Environment")
 	// Create an embeddings client using the OpenAI API. Requires environment variable OPENAI_API_KEY to be set.
 	llm, err := openai.New()
@@ -41,39 +43,31 @@ func init() {
 		//vectorstores.WithDeduplicater(vectorstores.NewSimpleDeduplicater()), //  This is useful to prevent wasting time on creating an embedding
 	}
 
-	server.Hooks().OnListen(func(listenData fiber.ListenData) error {
-		if fiber.IsChild() {
-			return nil
-		}
+	connString := database.MustVectorDatabase(context.Background())
 
-		connString := database.MustVectorDatabase(context.Background())
+	store, err := pgvector.New(
+		context.Background(),
+		pgvector.WithConnectionURL(connString),
+		pgvector.WithEmbedder(e),
+		pgvector.WithCollectionName("documentscollection"),
+		pgvector.WithCollectionTableName("documentstable"),
+		pgvector.WithEmbeddingTableName("documentsembeddings"),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-		store, err := pgvector.New(
-			context.Background(),
-			pgvector.WithConnectionURL(connString),
-			pgvector.WithEmbedder(e),
-			pgvector.WithCollectionName("documentscollection"),
-			pgvector.WithCollectionTableName("documentstable"),
-			pgvector.WithEmbeddingTableName("documentsembeddings"),
-		)
+	if database.CheckInitialEmbeddings(connString) {
+		_, err = store.AddDocuments(context.Background(), []schema.Document{
+			{
+				PageContent: "TTV es un Toledano de Toda la Vida, alguien que nació en Toledo y ha vivido toda su vida allí.",
+			},
+		})
 		if err != nil {
 			log.Fatal(err)
 		}
+	}
 
-		if database.CheckInitialEmbeddings(connString) {
-			_, err = store.AddDocuments(context.Background(), []schema.Document{
-				{
-					PageContent: "TTV es un Toledano de Toda la Vida",
-				},
-			})
-			if err != nil {
-				log.Fatal(err)
-			}
-		}
-
-		server.conversationalRetrieval = chains.NewConversationalRetrievalQAFromLLM(
-			llm, vectorstores.ToRetriever(store, 10, optionsVector...), memory.NewConversationBuffer())
-
-		return nil
-	})
+	server.conversationalRetrieval = chains.NewConversationalRetrievalQAFromLLM(
+		llm, vectorstores.ToRetriever(store, 10, optionsVector...), memory.NewConversationBuffer())
 }
