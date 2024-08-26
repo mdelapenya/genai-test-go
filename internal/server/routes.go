@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/tmc/langchaingo/chains"
+	"github.com/tmc/langchaingo/llms"
 )
 
 func (s *FiberServer) RegisterFiberRoutes() {
@@ -26,7 +27,7 @@ func (s *FiberServer) HelloWorldHandler(c *fiber.Ctx) error {
 }
 
 func (s *FiberServer) RagHandler(c *fiber.Ctx) error {
-	response, err := chains.Run(c.Context(), s.conversationalRetrieval, "¿Qué es un TTV?")
+	response, err := chains.Run(c.Context(), s.conversationalRetrieval, "¿Qué es un TTV?", chains.WithTemperature(0.5))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
@@ -41,7 +42,7 @@ func (s *FiberServer) RagHandler(c *fiber.Ctx) error {
 }
 
 func (s *FiberServer) LLHandler(c *fiber.Ctx) error {
-	completion, err := s.llm.Call(c.Context(), "¿Qué es un TTV?")
+	completion, err := s.llm.Call(c.Context(), "¿Qué es un TTV?", llms.WithTemperature(0.5))
 	if err != nil {
 		log.Fatal(err)
 	}
