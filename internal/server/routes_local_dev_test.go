@@ -28,9 +28,13 @@ func TestLLMs(t *testing.T) {
 		basepath string
 	}{
 		{
+			// talking to the LLM directly will not provide a good answer, because the model does not have
+			// the information about what TTV means.
 			basepath: "/chat/llm",
 		},
 		{
+			// using RAG will provide a better answer because we already added the embeddings fpr TTV
+			// to the database. See the local_development.go file.
 			basepath: "/chat/rag",
 		},
 	}
