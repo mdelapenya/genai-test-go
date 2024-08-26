@@ -28,6 +28,8 @@ By incorporating detailed instructions and examples, the Evaluator can provide a
 
 ## Local Development
 
+First, create a `.env` file in the root of the project with the contents of the [`.env.example`](.env.example) file. This file contains the environment variables required by the application.
+
 The project uses [air](https://github.com/air-verse/air) for live reloading the application. To start the application with live reload, run the following command:
 
 ```bash
