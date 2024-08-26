@@ -7,7 +7,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/tmc/langchaingo/chains"
-	"github.com/tmc/langchaingo/llms/openai"
+	"github.com/tmc/langchaingo/llms"
 )
 
 var server = &FiberServer{
@@ -24,7 +24,7 @@ type FiberServer struct {
 	conversationalRetrieval chains.ConversationalRetrievalQA
 
 	// to talk to the LLM directly
-	llm *openai.LLM
+	llm llms.Model
 }
 
 func Run() error {

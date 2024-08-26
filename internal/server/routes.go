@@ -45,15 +45,17 @@ func (s *FiberServer) RagHandler(c *fiber.Ctx) error {
 }
 
 func (s *FiberServer) LLHandler(c *fiber.Ctx) error {
-	completion, err := s.llm.Call(c.Context(), "¿Qué es un TTV?", llms.WithTemperature(0.5))
+	response, err := s.llm.GenerateContent(c.Context(), []llms.MessageContent{
+		llms.TextParts(llms.ChatMessageTypeHuman, "¿Qué es un TTV?"),
+	}, llms.WithTemperature(0.5))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	completion = strings.ReplaceAll(completion, "\"", "'")
+	text := strings.ReplaceAll(response.Choices[0].Content, "\"", "'")
 
 	resp := fiber.Map{
-		"message": completion,
+		"message": text,
 	}
 
 	return c.JSON(resp)
