@@ -4,10 +4,10 @@
 package server
 
 import (
-	"context"
 	"genai-test-go/internal/ai"
 	"io"
 	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/Jeffail/gabs/v2"
@@ -21,25 +21,25 @@ func TestLLMs(t *testing.T) {
 		basepath string
 	}{
 		{
-			name: "Direct LLM should not know when the Grafana LGTM module is available",
+			name: "(OpenAI) Direct LLM should not know when the Grafana LGTM module is available",
 			// talking to the LLM directly will not provide a good answer, because the model does not have
 			// the information about the Grafana module.
-			basepath: "/openia/llm",
+			basepath: "/openai/llm",
 		},
 		{
-			name: "Using RAG must know when the Grafana LGTM module is available",
+			name: "(OpenAI) Using RAG must know when the Grafana LGTM module is available",
 			// using RAG will provide a better answer because we already added the embeddings for Grafana
 			// to the database. See the local_development.go file.
-			basepath: "/openia/rag",
+			basepath: "/openai/rag",
 		},
 		{
-			name: "Direct LLM should not know when the Grafana LGTM module is available",
+			name: "(Ollama) Direct LLM should not know when the Grafana LGTM module is available",
 			// talking to the LLM directly will not provide a good answer, because the model does not have
 			// the information about the Grafana module.
 			basepath: "/ollama/llm",
 		},
 		{
-			name: "Using RAG must know when the Grafana LGTM module is available",
+			name: "(Ollama) Using RAG must know when the Grafana LGTM module is available",
 			// using RAG will provide a better answer because we already added the embeddings for Grafana
 			// to the database. See the local_development.go file.
 			basepath: "/ollama/rag",
@@ -78,24 +78,32 @@ func TestLLMs(t *testing.T) {
 				t.Fatalf("error parsing response body. Err: %v", err)
 			}
 
-			answer := c.Path("message").String()
-
-			evaluator := ai.NewEvaluator(server.llm)
-
-			aiResp, err := evaluator.Evaluate(context.Background(), question, answer, reference)
-			if err != nil {
-				t.Fatalf("error evaluating response. Err: %v", err)
+			type payload struct {
+				response  ai.Response
+				reference string
+				question  string
 			}
 
-			t.Logf("AI response: %v, answer was %s", aiResp, answer)
+			answer := c.Path("message").String()
+			evaluator := c.Path("evaluator").Data().(map[string]interface{})
+			p := payload{
+				response: ai.Response{
+					Evaluation: evaluator["Evaluation"].(string),
+					Reason:     evaluator["Reason"].(string),
+				},
+				question:  c.Path("question").String(),
+				reference: c.Path("reference").String(),
+			}
 
-			if tc.basepath == "/chat/llm" {
-				if aiResp.Answer != "no" {
-					t.Fatalf("expected the LLM to not know what TTV means: %v", aiResp)
+			t.Logf("AI response: %v, answer was %s", evaluator, answer)
+
+			if strings.Contains(tc.basepath, "/llm") {
+				if p.response.Evaluation != "no" {
+					t.Fatalf("expected the LLM to not know about the Grafana LGTM module: %v", p)
 				}
-			} else if tc.basepath == "/chat/rag" {
-				if aiResp.Answer != "yes" {
-					t.Fatalf("expected the RAG to know what TTV means: %v", aiResp)
+			} else if strings.Contains(tc.basepath, "/rag") {
+				if p.response.Evaluation != "yes" {
+					t.Fatalf("expected the RAG to know about the Grafana LGTM module: %v", p)
 				}
 			}
 		})

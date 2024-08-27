@@ -17,8 +17,8 @@ type ModelEvaluator struct {
 }
 
 type Response struct {
-	Answer string "json:answer"
-	Reason string "json:reason"
+	Evaluation string "json:evaluation"
+	Reason     string "json:reason"
 }
 
 // NewEvaluator creates a new Evaluator with the provided model.
@@ -109,8 +109,8 @@ func (e *ModelEvaluator) Evaluate(ctx context.Context, question string, answer s
 	}
 
 	r = Response{
-		Answer: c.Path("response").Data().(string),
-		Reason: c.Path("reason").Data().(string),
+		Evaluation: c.Path("response").Data().(string),
+		Reason:     c.Path("reason").Data().(string),
 	}
 
 	return r, nil

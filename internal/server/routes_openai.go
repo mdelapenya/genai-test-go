@@ -5,9 +5,9 @@ import (
 )
 
 func (s *FiberServer) OpenAIRagHandler(c *fiber.Ctx) error {
-	return ragHandler(c, s.conversationalRetrieval)
+	return ragHandler(c, s.openAIChat.ConversationalRetrieval)
 }
 
 func (s *FiberServer) OpenAILLHandler(c *fiber.Ctx) error {
-	return llmHandler(c, s.llm)
+	return llmHandler(c, s.openAIChat.Model)
 }

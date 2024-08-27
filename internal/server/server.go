@@ -2,13 +2,12 @@ package server
 
 import (
 	"fmt"
+	"genai-test-go/internal/ai"
 	"os"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/tmc/langchaingo/chains"
 	"github.com/tmc/langchaingo/llms"
-	"github.com/tmc/langchaingo/llms/ollama"
 )
 
 var server = &FiberServer{
@@ -21,17 +20,13 @@ var server = &FiberServer{
 type FiberServer struct {
 	*fiber.App
 
-	// using RAG for conversational retrieval
-	conversationalRetrieval chains.ConversationalRetrievalQA
+	evaluatorModel llms.Model
 
-	// to talk to the LLM directly
-	llm llms.Model
+	// to talk to OpenAI
+	openAIChat *ai.Chat
 
 	// to talk to Ollama as a local model
-	ollamaModel *ollama.LLM
-
-	// using RAG for conversational retrieval with Ollama
-	ollamaConversationalRetrieval chains.ConversationalRetrievalQA
+	ollamaChat *ai.Chat
 }
 
 func Run() error {
