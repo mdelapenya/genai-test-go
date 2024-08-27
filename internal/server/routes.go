@@ -1,6 +1,7 @@
 package server
 
 import (
+	"genai-test-go/internal/ai"
 	"log"
 	"net/http"
 	"strconv"
@@ -11,7 +12,14 @@ import (
 	"github.com/tmc/langchaingo/llms"
 )
 
-const question string = "Since which Testcontainers for Go version is the Grafana LGTM module available?"
+const (
+	question string = "Since which Testcontainers for Go version is the Grafana LGTM module available?"
+
+	// Using must/should is important
+	reference = `- Answer must not mention any other module
+- Answer must mention the version of Testcontainers for Go, which is v0.33.0
+- Answer must be less than 5 sentences`
+)
 
 func (s *FiberServer) RegisterFiberRoutes() {
 	s.App.Get("/", s.HelloWorldHandler)
@@ -51,17 +59,28 @@ func parseTemperature(c *fiber.Ctx) float64 {
 }
 
 func (s *FiberServer) RagHandler(c *fiber.Ctx) error {
-	response, err := chains.Run(c.Context(), s.conversationalRetrieval, question, chains.WithTemperature(parseTemperature(c)))
+	answer, err := chains.Run(c.Context(), s.conversationalRetrieval, question, chains.WithTemperature(parseTemperature(c)))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
 
-	response = strings.ReplaceAll(response, "\"", "'")
+	answer = strings.ReplaceAll(answer, "\"", "'")
+
+	evaluator := ai.NewEvaluator(server.llm)
+	aiResp, err := evaluator.Evaluate(c.Context(), question, answer, reference)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
 
 	resp := fiber.Map{
-		"message": response,
+		"evaluator": aiResp,
+		"answer":    answer,
+		"question":  question,
+		"reference": reference,
 	}
 
 	return c.JSON(resp)
@@ -75,10 +94,21 @@ func (s *FiberServer) LLHandler(c *fiber.Ctx) error {
 		log.Fatal(err)
 	}
 
-	text := strings.ReplaceAll(response.Choices[0].Content, "\"", "'")
+	answer := strings.ReplaceAll(response.Choices[0].Content, "\"", "'")
+
+	evaluator := ai.NewEvaluator(server.llm)
+	aiResp, err := evaluator.Evaluate(c.Context(), question, answer, reference)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
 
 	resp := fiber.Map{
-		"message": text,
+		"evaluator": aiResp,
+		"answer":    answer,
+		"question":  question,
+		"reference": reference,
 	}
 
 	return c.JSON(resp)

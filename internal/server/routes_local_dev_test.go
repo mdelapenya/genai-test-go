@@ -13,11 +13,6 @@ import (
 	"github.com/Jeffail/gabs/v2"
 )
 
-// Using must/should is important
-const reference = `- Answer must not mention any other module
-- Answer must mention the version of Testcontainers for Go, which is v0.33.0
-- Answer must be less than 5 sentences`
-
 func TestLLMs(t *testing.T) {
 	server.RegisterFiberRoutes()
 
