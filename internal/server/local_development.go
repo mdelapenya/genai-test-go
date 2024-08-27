@@ -5,6 +5,7 @@ package server
 
 import (
 	"context"
+	"genai-test-go/internal/ai"
 	"genai-test-go/internal/database"
 	"log"
 	"os"
@@ -13,6 +14,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/tmc/langchaingo/chains"
 	"github.com/tmc/langchaingo/embeddings"
+	"github.com/tmc/langchaingo/llms/ollama"
 	"github.com/tmc/langchaingo/llms/openai"
 	"github.com/tmc/langchaingo/memory"
 	"github.com/tmc/langchaingo/schema"
@@ -44,6 +46,14 @@ func init() {
 		//vectorstores.WithEmbedder(embedder), // use when you want add documents or doing similarity search
 		//vectorstores.WithDeduplicater(vectorstores.NewSimpleDeduplicater()), //  This is useful to prevent wasting time on creating an embedding
 	}
+
+	ollamaConnUrl := ai.MustGetOllamaConnectionString(context.Background())
+
+	ollamaLLM, err := ollama.New(ollama.WithModel(ai.Model), ollama.WithServerURL(ollamaConnUrl))
+	if err != nil {
+		log.Fatalf("error creating Ollama LLM: %v", err)
+	}
+	server.ollamaModel = ollamaLLM
 
 	connString := database.MustVectorDatabase(context.Background())
 
@@ -83,4 +93,7 @@ func init() {
 
 	server.conversationalRetrieval = chains.NewConversationalRetrievalQAFromLLM(
 		llm, vectorstores.ToRetriever(store, 10, optionsVector...), memory.NewConversationBuffer())
+
+	server.ollamaConversationalRetrieval = chains.NewConversationalRetrievalQAFromLLM(
+		ollamaLLM, vectorstores.ToRetriever(store, 10, optionsVector...), memory.NewConversationBuffer())
 }
