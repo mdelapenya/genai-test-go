@@ -92,7 +92,11 @@ func (e *ModelEvaluator) Evaluate(ctx context.Context, question string, answer s
 	res, err := e.model.GenerateContent(ctx, []llms.MessageContent{
 		llms.TextParts(llms.ChatMessageTypeSystem, sysmtemPrompt),
 		llms.TextParts(llms.ChatMessageTypeHuman, fmt.Sprintf(userPrompt, question, answer, reference)),
-	})
+	},
+		llms.WithTemperature(0), // deterministic responses
+		llms.WithSeed(42),
+		llms.WithTopP(0), // top-p zero means that the model will always provide the most likely answer
+	)
 	if err != nil {
 		return Response{}, err
 	}
