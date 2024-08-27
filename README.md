@@ -1,6 +1,6 @@
 # GenAI Testing in Go
 
-In this demo project, we'd like the different models to be able to determine in which Testcontainers for Go version the module was added. The models should be able to answer questions like:
+In this demo project, we'd like the different models to be able to determine in which Testcontainers for Go version the Grafana module was added. The models should be able to answer questions like:
 
 - In which version of Testcontainers for Go was the Grafana module added?
 
