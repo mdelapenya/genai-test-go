@@ -24,13 +24,25 @@ func TestLLMs(t *testing.T) {
 			name: "Direct LLM should not know when the Grafana LGTM module is available",
 			// talking to the LLM directly will not provide a good answer, because the model does not have
 			// the information about the Grafana module.
-			basepath: "/chat/llm",
+			basepath: "/openia/llm",
 		},
 		{
 			name: "Using RAG must know when the Grafana LGTM module is available",
 			// using RAG will provide a better answer because we already added the embeddings for Grafana
 			// to the database. See the local_development.go file.
-			basepath: "/chat/rag",
+			basepath: "/openia/rag",
+		},
+		{
+			name: "Direct LLM should not know when the Grafana LGTM module is available",
+			// talking to the LLM directly will not provide a good answer, because the model does not have
+			// the information about the Grafana module.
+			basepath: "/ollama/llm",
+		},
+		{
+			name: "Using RAG must know when the Grafana LGTM module is available",
+			// using RAG will provide a better answer because we already added the embeddings for Grafana
+			// to the database. See the local_development.go file.
+			basepath: "/ollama/rag",
 		},
 	}
 	for _, tc := range testCases {

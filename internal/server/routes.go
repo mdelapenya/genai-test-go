@@ -24,10 +24,13 @@ const (
 func (s *FiberServer) RegisterFiberRoutes() {
 	s.App.Get("/", s.HelloWorldHandler)
 
-	chatApis := s.App.Group("/chat")
+	openAIApis := s.App.Group("/openai")
+	openAIApis.Add(http.MethodGet, "/rag", s.RagHandler)
+	openAIApis.Add(http.MethodGet, "/llm", s.LLHandler)
 
-	chatApis.Add(http.MethodGet, "/rag", s.RagHandler)
-	chatApis.Add(http.MethodGet, "/llm", s.LLHandler)
+	ollamaApis := s.App.Group("/ollama")
+	ollamaApis.Add(http.MethodGet, "/rag", s.OllamaRagHandler)
+	ollamaApis.Add(http.MethodGet, "/llm", s.OllamaLLHandler)
 }
 
 func (s *FiberServer) HelloWorldHandler(c *fiber.Ctx) error {
