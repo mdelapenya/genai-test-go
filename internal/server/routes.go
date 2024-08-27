@@ -11,6 +11,8 @@ import (
 	"github.com/tmc/langchaingo/llms"
 )
 
+const question string = "Since which Testcontainers for Go version is the Grafana LGTM module available?"
+
 func (s *FiberServer) RegisterFiberRoutes() {
 	s.App.Get("/", s.HelloWorldHandler)
 
@@ -49,7 +51,7 @@ func parseTemperature(c *fiber.Ctx) float64 {
 }
 
 func (s *FiberServer) RagHandler(c *fiber.Ctx) error {
-	response, err := chains.Run(c.Context(), s.conversationalRetrieval, "¿Qué es un TTV?", chains.WithTemperature(parseTemperature(c)))
+	response, err := chains.Run(c.Context(), s.conversationalRetrieval, question, chains.WithTemperature(parseTemperature(c)))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
@@ -67,7 +69,7 @@ func (s *FiberServer) RagHandler(c *fiber.Ctx) error {
 
 func (s *FiberServer) LLHandler(c *fiber.Ctx) error {
 	response, err := s.llm.GenerateContent(c.Context(), []llms.MessageContent{
-		llms.TextParts(llms.ChatMessageTypeHuman, "¿Qué es un TTV?"),
+		llms.TextParts(llms.ChatMessageTypeHuman, question),
 	}, llms.WithTemperature(parseTemperature(c)))
 	if err != nil {
 		log.Fatal(err)

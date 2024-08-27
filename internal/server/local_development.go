@@ -7,6 +7,8 @@ import (
 	"context"
 	"genai-test-go/internal/database"
 	"log"
+	"os"
+	"path/filepath"
 
 	"github.com/joho/godotenv"
 	"github.com/tmc/langchaingo/chains"
@@ -57,10 +59,21 @@ func init() {
 		log.Fatal(err)
 	}
 
+	// Read the Grafana LGTM document (it was very recently created)
+	// so the LLM does not know about it. Therefore, only using RAG
+	// will found the answer.
+
+	// get current dir
+
+	bs, err := os.ReadFile(filepath.Join("testdata", "grafana-lgtm.txt"))
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	if database.CheckInitialEmbeddings(connString) {
 		_, err = store.AddDocuments(context.Background(), []schema.Document{
 			{
-				PageContent: "TTV es un Toledano de Toda la Vida, alguien que nació en Toledo y ha vivido toda su vida allí.",
+				PageContent: string(bs),
 			},
 		})
 		if err != nil {
