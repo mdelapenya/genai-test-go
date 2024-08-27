@@ -4,7 +4,7 @@ In this demo project, we'd like the different models to be able to determine in 
 
 - In which version of Testcontainers for Go was the Grafana module added?
 
-For that, we will use two approaches: using an LLM without `RAG` and using the LLM with `RAG`, creating the embeddings for the valid response, to demonstrate that using the `RAG` model can provide more accurate results. Finally, we will use the `GPT-4` model as an evaluator to validate the different responses.
+For that, we will use two approaches: using an LLM without `RAG` and using the LLM with `RAG`, creating the embeddings for the valid answer, to demonstrate that using the `RAG` model can provide more accurate results. Finally, we will use the `GPT-4` model as an evaluator to validate the different responses.
 
 ## Challenges of Testing GenAI applications
 
