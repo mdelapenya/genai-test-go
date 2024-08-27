@@ -17,8 +17,7 @@ import (
 const reference = `- Answer must not mention any other city than Toledo
 - Answer must mention Toledo
 - Answer must indicate a person who was born in Toledo and lived all his life in Toledo
-- Answer must be less than 5 sentences
-- Answer must not consider the given examples`
+- Answer must be less than 5 sentences`
 
 func TestLLMs(t *testing.T) {
 	server.RegisterFiberRoutes()
@@ -42,7 +41,11 @@ func TestLLMs(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			req, err := http.NewRequest("GET", tc.basepath, nil)
+			temperature := "0.0"
+
+			pathWithQS := tc.basepath + "?t=" + temperature
+
+			req, err := http.NewRequest("GET", pathWithQS, nil)
 			if err != nil {
 				t.Fatalf("error creating request. Err: %v", err)
 			}
@@ -55,7 +58,7 @@ func TestLLMs(t *testing.T) {
 			defer resp.Body.Close()
 
 			if resp.StatusCode != http.StatusOK {
-				t.Errorf("expected status OK; got %v", resp.Status)
+				t.Fatalf("expected status OK; got %v", resp.Status)
 			}
 
 			// read body

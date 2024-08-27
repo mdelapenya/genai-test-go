@@ -3,6 +3,7 @@ package server
 import (
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -27,8 +28,28 @@ func (s *FiberServer) HelloWorldHandler(c *fiber.Ctx) error {
 	return c.JSON(resp)
 }
 
+func parseTemperature(c *fiber.Ctx) float64 {
+	var temperature float64
+	// read it from the query string
+	if temp := c.Query("t"); temp != "" {
+		t, err := strconv.ParseFloat(temp, 64)
+		if err != nil {
+			return 0.0
+		}
+		temperature = t
+	}
+
+	if temperature > 1.0 {
+		temperature = 1.0
+	} else if temperature < 0.0 {
+		temperature = 0.0
+	}
+
+	return temperature
+}
+
 func (s *FiberServer) RagHandler(c *fiber.Ctx) error {
-	response, err := chains.Run(c.Context(), s.conversationalRetrieval, "¿Qué es un TTV?", chains.WithTemperature(0.5))
+	response, err := chains.Run(c.Context(), s.conversationalRetrieval, "¿Qué es un TTV?", chains.WithTemperature(parseTemperature(c)))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
@@ -47,7 +68,7 @@ func (s *FiberServer) RagHandler(c *fiber.Ctx) error {
 func (s *FiberServer) LLHandler(c *fiber.Ctx) error {
 	response, err := s.llm.GenerateContent(c.Context(), []llms.MessageContent{
 		llms.TextParts(llms.ChatMessageTypeHuman, "¿Qué es un TTV?"),
-	}, llms.WithTemperature(0.5))
+	}, llms.WithTemperature(parseTemperature(c)))
 	if err != nil {
 		log.Fatal(err)
 	}
