@@ -1,6 +1,10 @@
 # GenAI Testing in Go
 
-A sample project for demonstrating how to test a Go application using GenAI.
+In this demo project, we'd like the different models to be able to determine in which Testcontainers for Go version the module was added. The models should be able to answer questions like:
+
+- In which version of Testcontainers for Go was the Grafana module added?
+
+For that, we will use two approaches: using an LLM without `RAG` and using the LLM with `RAG`, creating the embeddings for the valid response, to demonstrate that using the `RAG` model can provide more accurate results. Finally, we will use the `GPT-4` model as an evaluator to validate the different responses.
 
 ## Challenges of Testing GenAI applications
 
@@ -24,9 +28,10 @@ Thus, the key may lie in using one LLM to evaluate the adequacy of responses gen
 
 This proposal involves defining detailed validation criteria and using an LLM as an **Evaluator** to determine if the responses meet the specified requirements. This approach can be applied to validate answers to specific questions, drawing on both general knowledge and specialized information.
 
-By incorporating detailed instructions and examples, the Evaluator can provide accurate and justified evaluations, offering clarity on why a response is considered correct or incorrect.
+By incorporating detailed instructions and examples, the Evaluator can provide accurate and justified evaluations, offering clarity on why a response is considered correct or incorrect. For this reason, the evaluator model should be the most accurate and reliable model available.
+In this project, we are using `OpenAI's GPT-4` as the evaluator model.
 
-An example of using an LLM model as an Evaluator is shown in the following [test file](./internal/server/routes_local_dev_test.go).
+Please check the bootstrap of the [local development mode file](./internal/server/local_development.go) to understand how the evaluator model is loaded and used. We will start and a `pgVector` instance for RAG, pre-loaded with information about the recently created Grafana module for Testcontainers for Go.
 
 ## Local Development
 
@@ -40,7 +45,12 @@ make watch
 
 This will start the application and watch for changes in the source code. When a change is detected, the application will be recompiled and restarted.
 
-The project uses [Testcontainers for Go](https://github.com/testcontainers/testcontainers-go) for running the local development environment for the application. It is formed by a local Postgres database, with the `pgVector` module enabled, as a Docker container. This container is reused across multiple builds, so you don't end up with multiple containers running at the same time.
+The project uses [Testcontainers for Go](https://github.com/testcontainers/testcontainers-go) for running the local development environment for the application. It is formed by the following services:
+
+- a local Postgres database, with the `pgVector` module enabled, as a Docker container.
+- a local Ollama instance, with the `llama3.1:8b` model already loaded in it.
+
+These containers are reused across multiple builds, so you don't end up with multiple containers running at the same time.
 
 Please check the [`server/local_development.go`](./internal/server/local_development.go) file. This file leverages Go build tags and a Go's init function to conditionally start the Postgres container only during local development. The `make build-dev` command adds the proper build tags to the execution of the Go toolchain in order to make it possible. To understand how this works, check [the following blog post](https://www.docker.com/blog/local-development-of-go-applications-with-testcontainers/).
 
